@@ -1,4 +1,3 @@
-
 document.addEventListener('DOMContentLoaded', () => {
   const form = document.getElementById('add-new-card');
   if (!form) return;
